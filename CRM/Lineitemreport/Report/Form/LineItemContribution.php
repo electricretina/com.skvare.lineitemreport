@@ -247,6 +247,7 @@ class CRM_Lineitemreport_Report_Form_LineItemContribution extends CRM_Lineitemre
             'no_display' => TRUE,
           ),
           'trxn_id' => NULL,
+          'total_amount' => NULL,
           'fee_amount' => array('title' => ts('Transaction Fee')),
           'net_amount' => NULL,
         ),
@@ -255,11 +256,6 @@ class CRM_Lineitemreport_Report_Form_LineItemContribution extends CRM_Lineitemre
           'receive_date' => array(
             'title' => 'Payment Date',
             'operatorType' => CRM_Report_Form::OP_DATE,
-          ),
-          'financial_type_id' => array(
-            'title' => ts('Financial Type'),
-            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-            'options' => CRM_Contribute_PseudoConstant::financialType(),
           ),
           'currency' => array(
             'title' => ts('Contribution Currency'),
@@ -290,12 +286,21 @@ class CRM_Lineitemreport_Report_Form_LineItemContribution extends CRM_Lineitemre
       'civicrm_line_item' => array(
         'dao' => 'CRM_Price_DAO_LineItem',
         'grouping' => 'priceset-fields',
+        'fields' => array(
+          'line_total' => array('title' => ts('Line Item Amount')),
+          'label' => array('title' => ts('Line Item Label')),
+        ),
         'filters' => array(
           'price_field_value_id' => array(
             'name' => 'price_field_value_id',
-            'title' => ts('Fee Level'),
+            'title' => ts('Fee Type'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
             'options' => $this->getPriceLevels(),
+          ),
+          'financial_type_id' => array(
+            'title' => ts('Line Item Financial Type'),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => $this->getFinancialTypes(),
           ),
         ),
       ),
@@ -359,7 +364,7 @@ class CRM_Lineitemreport_Report_Form_LineItemContribution extends CRM_Lineitemre
       case 'fieldlist':
         $select = "SELECT DISTINCT li.price_field_id FROM civicrm_line_item li
         JOIN civicrm_price_field pf ON li.price_field_id = pf.id
-        -- JOIN civicrm_price_set_entity pse ON pf.price_set_id = pse.price_set_id";
+         JOIN civicrm_price_set_entity pse ON pf.price_set_id = pse.price_set_id";
         $where = "WHERE pf.price_set_id = $psId";
         // if (!empty($entityId)) $where .= " AND pse.entity_id IN ($entityId)";
 
@@ -379,7 +384,7 @@ class CRM_Lineitemreport_Report_Form_LineItemContribution extends CRM_Lineitemre
       case 'filters':
         $select = "SELECT DISTINCT li.price_field_id, li.price_field_value_id, pf.name, pf.label, pf.is_enter_qty, pf.html_type, pf.price_set_id FROM civicrm_line_item li
         JOIN civicrm_price_field pf ON li.price_field_id = pf.id
-        -- JOIN civicrm_price_set_entity pse ON pf.price_set_id = pse.price_set_id";
+         JOIN civicrm_price_set_entity pse ON pf.price_set_id = pse.price_set_id";
         $where = "WHERE pf.price_set_id = $psId";
         // if (isset($entityId)) $where .= " AND pse.entity_id IN ($entityId)";
 
@@ -420,7 +425,7 @@ class CRM_Lineitemreport_Report_Form_LineItemContribution extends CRM_Lineitemre
       default:
         $select = "SELECT DISTINCT li.price_field_id, pf.name, pf.label, pf.is_enter_qty, pf.price_set_id FROM civicrm_line_item li
         JOIN civicrm_price_field pf ON li.price_field_id = pf.id
-        -- JOIN civicrm_price_set_entity pse ON pf.price_set_id = pse.price_set_id";
+         JOIN civicrm_price_set_entity pse ON pf.price_set_id = pse.price_set_id";
         $where = "WHERE pf.price_set_id = $psId";
         // if (!empty($entityId)) $where .= " AND pse.entity_id IN ($entityId)";
 

@@ -86,7 +86,7 @@ class CRM_Lineitemreport_Report_Form_LineItem extends CRM_Report_Form {
    */
   public function getPriceLevels() {
     $query = "
-SELECT CONCAT(cv.label, ' (', ps.title, ')') label, cv.id
+SELECT CONCAT(cv.label, ' (', ps.title, ')') label, cv.id, cv.amount
 FROM civicrm_price_field_value cv
 LEFT JOIN civicrm_price_field cf
   ON cv.price_field_id = cf.id
@@ -107,6 +107,27 @@ ORDER BY  cv.label
 
     return $elements;
   }
+
+  /**
+   * Search the DB for the financial types, just for the 
+   * line item report filters
+   * 
+   * @return array
+   */
+   public function getFinancialTypes() {
+    $query = "
+     SELECT ft.id, ft.name
+     FROM civicrm_financial_type ft
+     WHERE ft.is_active = 1
+    ";
+    $dao = CRM_Core_DAO::executeQuery($query);
+    $elements = array();
+    while ($dao->fetch()) {
+      $elements[$dao->id] = "$dao->name\n";
+    }
+
+    return $elements;
+   }
 
   /**
    * Get price set data for the specified ids
